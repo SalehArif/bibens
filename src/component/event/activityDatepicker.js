@@ -1,0 +1,430 @@
+import { StyleSheet, Text, View, Modal, TouchableOpacity, FlatList, } from 'react-native'
+import React, { useState } from 'react'
+import { Switch } from 'react-native-switch';
+import DatePicker from 'react-native-modern-datepicker';
+import { TextInput } from 'react-native-gesture-handler';
+import LinearGradient from 'react-native-linear-gradient';
+import Feather from 'react-native-vector-icons/Feather';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { ScrollView } from 'react-native';
+
+const Datepicker = ( props ) => {
+	const [startdate, setstartDate] = useState();
+	const [enddate, setendDate] = useState();
+	const [datebutton, setDatebutton] = useState();
+
+	const [time, setTime] = useState({startHour:0,startMin:0,endHour:0,endMin:0});
+	const [timepicker, setTimepicker] = useState({startHour:0,startMin:0,endHour:0,endMin:0});
+	// const [dates, setDates] = useState( props.date ?? []);
+
+	const [open, setOpen] = useState(false);
+	const [visible, setVisible] = useState(false);
+	const [timechanged, settimechanged] = useState(false);
+	const [isEnabled, setIsEnabled] = useState(false);
+	const toggleSwitch = () => {setIsEnabled(previousState => !previousState);};
+	const [isEnabled1, setIsEnabled1] = useState(false);
+	const toggleSwitch1 = () => {setIsEnabled1(previousState => !previousState);};
+
+    const days = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"]
+    const [day,setDay] = useState()
+    const [toggleCheckBox, setToggleCheckBox] = useState(new Array(7).fill(false))
+    const [daytimes, setDaytimes] = useState({})
+
+  return (
+    <Modal
+    animationType="slide"
+    transparent={true}
+    visible={true}
+    onRequestClose={() => {
+        props.setModalVisible(false);
+    }}>
+    <View style={styles.centeredView}>
+        <View style={styles.modalView}>
+        <TouchableOpacity
+            style={[styles.button, {borderRadius:5, justifyContent:"center", padding:0 ,position:"absolute", right:0, width:"13%", height:30, margin:12}]}
+            onPress={() => props.setModalVisible(false)}>
+            <MaterialCommunityIcons name={'close-thick'} size={16}/>
+        </TouchableOpacity>
+        <ScrollView>
+        <TouchableOpacity
+            style={[styles.button, {marginTop:30, paddingLeft:17}]}
+            onPress={()=>{setVisible(true); settimechanged(true); setDay(null)}}
+            >
+            <Text style={[styles.textStyle,]}>Start Time</Text>
+            <Text style={[styles.textStyle,]}>{time.startHour < 10 ? `0${time.startHour}`:time.startHour}:{time.startMin< 10 ? `0${time.startMin}`:time.startMin}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+            style={[styles.button,{marginTop:12, paddingLeft:17}]}
+            onPress={()=>{setVisible(true); settimechanged(true); setDay(null)}}
+            >
+            <Text style={[styles.textStyle,]}>End Time</Text>
+            <Text style={[styles.textStyle,]}>{time.endHour< 10 ? `0${time.endHour}`:time.endHour}:{time.endMin< 10 ? `0${time.endMin}`:time.endMin}</Text>
+        </TouchableOpacity>
+        <View
+            style={[styles.button, {marginTop:12, paddingLeft:17}]}>
+            <Text style={styles.textStyle}>Same Time Every Day</Text>
+            <Switch
+                    onValueChange={toggleSwitch}
+                    value={isEnabled}
+                    activeText={''}
+                    inActiveText={''}
+                    backgroundActive={'#30d158'}
+                    backgroundInactive={'gray'}
+                    circleActiveColor={'white'}
+                    circleInActiveColor={'white'}
+                    circleSize={25}
+                    // switchLeftPx={0.5}
+                    // switchRightPx={0.5}
+                    barHeight={26}
+                    switchWidthMultiplier={2.05} //2.25
+                />
+        </View>
+        <Text style={{marginTop:10, color:"black", fontWeight:"600", fontSize:18}}>Select Days { isEnabled ? null:"And Time" }:</Text>
+        {
+            days.map((val,index)=>(
+            <View key={index} style={{marginVertical:5 ,flexDirection:"row", justifyContent:"space-between", alignItems:"center"}}>
+                <View style={{flexDirection:"row",alignItems:"center"}}>
+                    <TouchableOpacity onPress={()=> setToggleCheckBox(state => state.map((val,ind) => index==ind ? !val:val))}>
+                        {toggleCheckBox[index] ? 
+                        <AntDesign name='checksquare' color={"black"} size={20} />:
+                        <Feather name='square' color={"black"} size={20} />
+                    }
+                    </TouchableOpacity>
+
+                    <Text style={{marginLeft:5 ,fontSize:17, fontWeight:"600", color:"black"}}>{val}</Text>
+                </View>
+            {!isEnabled ? 
+                <TouchableOpacity disabled={!toggleCheckBox[index]} onPress={()=>{setDay(val); setVisible(true)}} style={{flexDirection:"row",alignItems:"center"}}>
+                    { daytimes[val] ? <Text style={[{paddingHorizontal:5,paddingVertical:2 ,backgroundColor:"rgba(151, 151, 151, 0.7)", borderRadius:20,color:"black", fontSize:18}]}>
+                    {daytimes[val].startHour < 10 ? `0${daytimes[val].startHour}`:daytimes[val].startHour}:{daytimes[val].startMin< 10 ? `0${daytimes[val].startMin}`:daytimes[val].startMin}{"-"}
+                    {daytimes[val].endHour< 10 ? `0${daytimes[val].endHour}`:daytimes[val].endHour}:{daytimes[val].endMin< 10 ? `0${daytimes[val].endMin}`:daytimes[val].endMin}
+                    </Text>: 
+                    <View style={{flexDirection:"row"}}>
+                        <Feather name='edit' color={"black"} size={17}/>
+                        <Text style={{fontSize:17, fontWeight:"600", color:"black"}}>Add Time</Text>
+                    </View>
+                    }
+                </TouchableOpacity>
+                :null}
+            </View>
+            ))
+        }
+        <Text style={{marginTop:15, color:"black", fontWeight:"600", fontSize:18}}>Select Start Date - End Date:</Text>
+        <View
+            style={[styles.button, {marginTop:10, paddingLeft:17}]}>
+            <Text style={styles.textStyle}>Available all the year</Text>
+            <Switch
+                onValueChange={toggleSwitch1}
+                value={isEnabled1}
+                activeText={''}
+                inActiveText={''}
+                backgroundActive={'#30d158'}
+                backgroundInactive={'gray'}
+                circleActiveColor={'white'}
+                circleInActiveColor={'white'}
+                circleSize={25}
+                // switchLeftPx={0.5}
+                // switchRightPx={0.5}
+                barHeight={26}
+                switchWidthMultiplier={2.05} //2.25
+            />
+        </View>
+        <TouchableOpacity
+            style={[styles.button, 
+            isEnabled1 ? {backgroundColor:"rgb(167,167,167)" ,marginTop:12, paddingLeft:17}:
+            {marginTop:12, paddingLeft:17}]}
+            onPress={() => { setDatebutton("Starting"); setOpen(true);}}
+            disabled={isEnabled1}
+            >
+            <Text style={[styles.textStyle, isEnabled1 ? { color:"rgba(0,0,0,0.25)"}:null]}>{startdate ? `${startdate[2]} ${startdate[1]} ${startdate[0]}`:"Start Date"}</Text>
+            <Feather name={"calendar"} size={20} color={isEnabled1 ? "rgba(0,0,0,0.25)":"black"} />
+        </TouchableOpacity>
+        <TouchableOpacity
+            style={[styles.button, 
+                isEnabled1 ? {backgroundColor:"rgb(167,167,167)" ,marginTop:12, paddingLeft:17}:
+                {marginTop:12, paddingLeft:17}]}
+            onPress={() => { setDatebutton("End"); setOpen(true);}}
+            disabled={isEnabled1}
+        >
+            <Text style={[styles.textStyle, isEnabled1 ? { color:"rgba(0,0,0,0.25)"}:null]}>{enddate ? `${enddate[2]} ${enddate[1]} ${enddate[0]}`:"End Date"}</Text>
+            <Feather name={"calendar"} size={20} color={isEnabled1 ? "rgba(0,0,0,0.25)":"black"} />
+        </TouchableOpacity>
+        <TouchableOpacity
+            style={[{marginTop:20, paddingLeft:17, width:"65%", height:50, borderRadius:10, alignSelf:"center"}]}
+            onPress={() => { 
+                // props.dates(dates); 
+                props.setModalVisible(false); }}>
+            <LinearGradient
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0, y: 1 }}
+            colors={['#2FC598', '#149AD4']}
+            style={styles.gradient1}>
+                <Text style={[styles.textStyle, {fontFamily:"Poppins", fontWeight:"bold" ,color:"white"}]}>Apply</Text>
+            </LinearGradient>
+        </TouchableOpacity>
+        </ScrollView>
+        <Modal
+            visible={open}
+            animationType="slide"
+            transparent={true}
+            onRequestClose={() => {
+                setOpen(!open);
+            }}
+            >
+                    
+            <View style={[styles.centeredView, {justifyContent: 'center'}]}>
+
+            <View style={[styles.modalView, {paddingHorizontal:5, paddingVertical:5}]}>
+            <View style={{flexDirection:"row", alignItems:"center", marginLeft:10, justifyContent:"space-between"}}>
+                <Text style={{fontWeight:"bold", fontSize:20, color:"black"}}>Select {datebutton} Date</Text>
+                <TouchableOpacity
+                style={[styles.button, {borderRadius:5, justifyContent:"center", padding:0 , width:"13%", margin:12}]}
+                onPress={() => setOpen(!open)}>
+                    <MaterialCommunityIcons name={'close-thick'} size={18}/>
+                </TouchableOpacity>
+            </View>
+            <DatePicker
+                mode='calendar'
+                options={{
+                // backgroundColor: '#090C08',
+                textHeaderColor: '#000000',
+                textDefaultColor: '#000000',
+                selectedTextColor: '#fff',
+                mainColor: '#000000',
+                textSecondaryColor: '#000000',
+                }}
+                onSelectedChange={value => {
+                    if( datebutton == "Starting")
+                        setstartDate(value)
+                    else
+                        setendDate(value)
+                }}
+            />
+                <TouchableOpacity
+                style={[{marginTop:0, paddingLeft:17, width:"65%", height:"10%", borderRadius:10, alignSelf:"center"}]}
+                onPress={() => {
+                    var months =  ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sept","Oct","Nov","Dec"];
+                    var dates = datebutton=="Starting" ?  startdate.split("/"): enddate.split("/");
+                    dates[1] =  months[parseInt(dates[1])-1]
+                    datebutton=="Starting" ? setstartDate(dates): setendDate(dates)
+                    setOpen(false)
+                    
+                    }}>
+                <LinearGradient
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 0, y: 1 }}
+                    colors={['#2FC598', '#149AD4']}
+                    style={styles.gradient1}>
+                    <Text style={[styles.textStyle, {fontFamily:"Poppins", fontWeight:"bold" ,color:"white"}]}>Select</Text>
+                </LinearGradient>
+                </TouchableOpacity>
+                </View>
+            </View>
+        </Modal>
+        <Modal
+            visible={visible}
+            animationType="slide"
+            transparent={true}
+            onRequestClose={() => {
+                setVisible(!visible);
+            }}
+            >
+            <View style={[styles.centeredView, {justifyContent: 'center'}]}>
+            <View style={[styles.modalView, {paddingHorizontal:5, paddingVertical:5}]}>
+                <View style={{flexDirection:"row", justifyContent:"flex-end"}}>
+                    <Text style={[{ color:"black", fontSize: 22,fontWeight: 'bold', alignSelf:"flex-end", textAlign:"center", marginRight:35}, day ? {marginRight:50}:null]}>{ day ? day:"Select Time"}</Text>
+                    <TouchableOpacity
+                        style={[styles.button, {borderRadius:5, justifyContent:"center", alignSelf:"flex-end", padding:5 , width:"13%", margin:12}]}
+                        onPress={() => setVisible(!visible)}>
+                        <MaterialCommunityIcons name={'close-thick'} size={18}/>
+                    </TouchableOpacity>
+                </View>
+                <Text style={{ color:"black", fontSize: 20,fontWeight: 'bold', lineHeight:25, marginLeft:"5%", fontFamily:"Poppins", marginTop:"5%", textAlign:"center"}}>Starting Time:</Text>
+                <View style={{flexDirection:"row", justifyContent:"center", alignItems:"center", marginTop:"2%"}}>
+                <TextInput
+                    placeholder="00"
+                    value={timepicker.startHour==0 ? "00":timepicker.startHour.toString()}
+                    placeholderTextColor='black'
+                    keyboardType='numeric'
+                    onChangeText={value => {
+                    if(parseInt(value)>=0 && parseInt(value)<24)
+                        setTimepicker( state => ({...state, startHour: parseInt(value)}));
+                    else if(value=="" || isNaN(value))
+                        setTimepicker( state => ({...state, startHour: 0}));
+                    else
+                        setTimepicker( state => ({...state, startHour: 0}));
+                    }}
+                    underlineColorAndroid="transparent"
+                    autoCapitalize="none"
+                    style={{fontSize: 25,fontWeight: '500', paddingHorizontal:30, backgroundColor:"rgb(179,179,179)",  borderRadius:30, marginHorizontal:3, paddingVertical:5}}
+                />
+                <Text style={{ color:"black", fontSize: 30,fontWeight: 'bold', alignSelf:"center"}}>:</Text>
+                <TextInput
+                    placeholder="00"
+                    value={timepicker.startMin==0 ? "00":timepicker.startMin.toString()}
+                    placeholderTextColor='black'
+                    keyboardType='numeric'
+                    onChangeText={value => {
+                    if(parseInt(value)>=0 && parseInt(value)<60)
+                        setTimepicker( state => ({...state, startMin: parseInt(value)}));
+                    else if(value=="" || isNaN(value))
+                        setTimepicker( state => ({...state, startMin: 0}));
+                    else
+                        setTimepicker( state => ({...state, startMin: 0}));
+                    }}
+                    underlineColorAndroid="transparent"
+                    autoCapitalize="none"
+                    style={{fontSize: 25,fontWeight: '500', paddingHorizontal:30, backgroundColor:"rgb(179,179,179)",  borderRadius:30, marginHorizontal:3, paddingVertical:5}}
+                />
+                </View>
+                <Text style={{ color:"black", fontSize: 20,fontWeight: 'bold', lineHeight:25, marginLeft:"5%", fontFamily:"Poppins", marginTop:"8%", textAlign:"center"}}>End Time:</Text>
+                <View style={{flexDirection:"row", justifyContent:"center", alignItems:"center", marginTop:"2%"}}>
+                <TextInput
+                    placeholder="00"
+                    value={timepicker.endHour==0 ? "00":timepicker.endHour.toString()}
+                    placeholderTextColor='black'
+                    keyboardType='numeric'
+                    onChangeText={value => {
+                    if(parseInt(value)>=0 && parseInt(value)<24)
+                        setTimepicker( state => ({...state, endHour: parseInt(value)}));
+                    else if(value=="" || isNaN(value))
+                        setTimepicker( state => ({...state, endHour: 0}));
+                    else
+                        setTimepicker( state => ({...state, endHour: 0}));
+                    }}
+                    underlineColorAndroid="transparent"
+                    autoCapitalize="none"
+                    style={{fontSize: 25,fontWeight: '500', paddingHorizontal:30, backgroundColor:"rgb(179,179,179)", borderRadius:30, marginHorizontal:3, paddingVertical:5}}
+                />
+                <Text style={{ color:"black", fontSize: 30,fontWeight: 'bold', alignSelf:"center"}}>:</Text>
+                <TextInput
+                    placeholder="00"
+                    value={timepicker.endMin==0 ? "00":timepicker.endMin.toString()}
+                    placeholderTextColor='black'
+                    keyboardType='numeric'
+                    onChangeText={value => {
+                    if(parseInt(value)>=0 && parseInt(value)<60)
+                        setTimepicker( state => ({...state, endMin: parseInt(value)}));
+                    else if(value=="" || isNaN(value))
+                        setTimepicker( state => ({...state, endMin: 0}));
+                    else
+                        setTimepicker( state => ({...state, endMin: 0}));
+                    }}
+                    underlineColorAndroid="transparent"
+                    autoCapitalize="none"
+                    style={{fontSize: 25,fontWeight: '500', paddingHorizontal:30, backgroundColor:"rgb(179,179,179)",  borderRadius:30, marginHorizontal:3, paddingVertical:5}}
+                />
+                </View>
+                <TouchableOpacity
+                style={[styles.btn, { alignSelf: 'center', height: 58 ,width:'70%'}]}
+                onPress={() => {
+                    if(day)
+                        setDaytimes(state => ({...state, [day]:timepicker}));
+                    else
+                        setTime(timepicker)    
+                    setVisible(!visible)
+                }}>
+                <LinearGradient
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 0, y: 1 }}
+                    colors={['#33CC8F','#28CCF2']}
+                    style={styles.gradient}>
+                    <Text style={[styles.btn1text,{color:"white"}]}>Select</Text>
+                </LinearGradient>
+                </TouchableOpacity>
+            </View>
+            </View>
+        </Modal>
+        </View>
+    </View>
+    </Modal>
+  )
+}
+
+export default Datepicker
+
+const styles = StyleSheet.create({
+	centeredView: {
+    flex: 1,
+    // justifyContent: 'center',
+    // alignItems: 'center',
+    // marginTop: 22,
+    backgroundColor:"rgba(0,0,0,0.7)"
+  },
+  modalView: {
+    // margin: 20,
+    marginHorizontal:23,
+    marginTop:30,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 35,
+    // height:"90%"
+  },
+  button: {
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2, 
+    backgroundColor:"rgba(179,179,180,255)", 
+    flexDirection:"row", 
+    justifyContent:"space-between",
+    alignItems:"center"
+  },
+  buttonOpen: {
+    backgroundColor: '#F194FF',
+  },
+  buttonClose: {
+    backgroundColor: '#2196F3',
+  },
+  textStyle: {
+    color: 'black',
+    fontSize:18,
+    lineHeight:22,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: 'center',
+  },
+	gradient: {
+    width: '100%',
+    height: '100%',
+    // textAlign: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'center',
+    borderRadius: 20,
+  },
+  gradient1: {
+    width: '100%',
+    height: '100%',
+    flexDirection:"row",
+
+    // textAlign: 'center',
+    justifyContent:"space-evenly",
+    alignItems: 'center',
+    alignSelf: 'center',
+    borderRadius: 10,
+  },
+	btn1text: {
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    fontWeight: '600',
+    fontFamily:"Poppins",
+    fontSize: 18,
+    lineHeight: 27,
+    color: '#29292C',
+  },	
+  btn: {
+    marginTop: 15,
+    height: 58,
+    width: '80%',
+    borderRadius: 10,
+    shadowColor: 'black',
+    textAlign: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+})
